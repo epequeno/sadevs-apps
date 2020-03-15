@@ -14,7 +14,7 @@ class SadevsAppsStack(core.Stack):
     def __init__(self, scope: core.Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        certificate = certificate_manager.Certificate(
+        certificate = certificate_manager.DnsValidatedCertificate(
             self,
             "sadevs-apps-cert",
             domain_name=DOMAIN_NAME,
