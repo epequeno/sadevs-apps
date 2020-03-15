@@ -14,16 +14,17 @@ class SadevsAppsStack(core.Stack):
     def __init__(self, scope: core.Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        certificate = certificate_manager.Certificate(
+        hosted_zone = route53.PublicHostedZone(
+            self, "HostedZone", zone_name="sadevs.app"
+        )
+
+        certificate = certificate_manager.DnsValidatedCertificate(
             self,
             "sadevs-apps-cert",
+            hosted_zone=hosted_zone,
             domain_name=DOMAIN_NAME,
             subject_alternative_names=[f"*.{DOMAIN_NAME}"],
             validation_method=certificate_manager.ValidationMethod.DNS,
-        )
-
-        hosted_zone = route53.PublicHostedZone(
-            self, "HostedZone", zone_name="sadevs.app"
         )
 
         hello_lambda = aws_lambda.Function(
