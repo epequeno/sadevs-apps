@@ -14,7 +14,11 @@ setuptools.setup(
     author="author",
     package_dir={"": "sadevs_apps"},
     packages=setuptools.find_packages(where="sadevs_apps"),
-    install_requires=["aws-cdk.core==1.27.0", "aws-cdk.aws-apigateway==1.27.0"],
+    install_requires=[
+        "aws-cdk.core==1.27.0",
+        "aws-cdk.aws-apigateway==1.27.0",
+        "aws_cdk.aws_route53_targets==1.27.0",
+    ],
     python_requires=">=3.6",
     classifiers=[
         "Development Status :: 4 - Beta",
