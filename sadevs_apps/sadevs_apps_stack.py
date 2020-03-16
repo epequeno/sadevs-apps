@@ -17,6 +17,8 @@ class SadevsAppsStack(core.Stack):
             self, "HostedZone", zone_name=DOMAIN_NAME
         )
 
+        self._hosted_zone_id = hosted_zone.hosted_zone_id
+
         certificate = certificate_manager.DnsValidatedCertificate(
             self,
             "sadevs-apps-cert",
@@ -54,3 +56,7 @@ class SadevsAppsStack(core.Stack):
     @property
     def certificate_arn(self):
         return self._certificate_arn
+
+    @property
+    def hosted_zone_id(self):
+        return self._hosted_zone_id
