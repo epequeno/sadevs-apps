@@ -14,13 +14,14 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Build elm app
-      uses: jorelali/setup-elm@v1
+    - name: Setup Elm environment
+      uses: JorelAli/setup-elm@v1
       with:
-        elm-version: 0.19.1
-      run: |
+        elm-version: 0.19.0
+    - run: |
         cd assets/elm
         elm make src/Main.elm --output main.js
+
 
     - name: CDK Diff
       uses: docker://scottbrenner/aws-cdk-action:latest
