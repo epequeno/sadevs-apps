@@ -9,3 +9,5 @@ __pycache__
 .cdk.staging
 cdk.out
 .idea
+assets/elm/elm-stuff
+assets/elm/main.js
