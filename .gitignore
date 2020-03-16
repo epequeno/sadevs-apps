@@ -10,3 +10,4 @@ __pycache__
 cdk.out
 .idea
 assets/elm/elm-stuff
+assets/elm/main.js
