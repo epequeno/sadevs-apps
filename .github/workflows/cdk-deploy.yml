@@ -12,6 +12,17 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+
+    - name: Setup Elm environment
+      uses: JorelAli/setup-elm@v1
+      with:
+        elm-version: 0.19.0
+
+    - name: Build Elm app
+      run: |
+        cd assets/elm
+        elm make src/Main.elm --output main.js
+
     - name: CDK Synth
       uses: docker://scottbrenner/aws-cdk-action:latest
       with:
@@ -20,7 +31,7 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         CDK_DEFAULT_ACCOUNT: ${{ secrets.CDK_DEFAULT_ACCOUNT }}
-    
+
     - name: CDK Deploy
       uses: docker://scottbrenner/aws-cdk-action:latest
       with:
