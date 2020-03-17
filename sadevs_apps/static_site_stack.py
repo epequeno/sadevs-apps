@@ -62,7 +62,7 @@ class StaticSiteStack(core.Stack):
         s3_deployment.BucketDeployment(
             self,
             "DeployWithInvalidation",
-            sources=[s3_deployment.Source.asset("assets/elm")],
+            sources=[s3_deployment.Source.asset("assets/elm/dst")],
             destination_bucket=site_bucket,
             distribution=distribution,
             distribution_paths=["/*"],
