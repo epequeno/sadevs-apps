@@ -30,8 +30,9 @@ class StaticSiteStack(core.Stack):
             bucket_name=DOMAIN_NAME,
             website_index_document="index.html",
             website_error_document="error.html",
-            public_read_access=True,
         )
+
+        oai = cloudfront.OriginAccessIdentity(self, "OriginAccessIdentity")
 
         distribution = cloudfront.CloudFrontWebDistribution(
             self,
@@ -42,7 +43,7 @@ class StaticSiteStack(core.Stack):
             origin_configs=[
                 cloudfront.SourceConfiguration(
                     s3_origin_source=cloudfront.S3OriginConfig(
-                        s3_bucket_source=site_bucket
+                        s3_bucket_source=site_bucket, origin_access_identity=oai
                     ),
                     behaviors=[cloudfront.Behavior(is_default_behavior=True)],
                 ),
