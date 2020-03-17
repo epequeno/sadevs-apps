@@ -20,8 +20,8 @@ class StaticSiteStack(core.Stack):
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
-        hosted_zone = route53.HostedZone.from_hosted_zone_id(
-            self, "HostedZone", hosted_zone_id=hosted_zone_id
+        hosted_zone = route53.HostedZone.from_hosted_zone_attributes(
+            self, "HostedZone", hosted_zone_id=hosted_zone_id, zone_name=DOMAIN_NAME
         )
 
         site_bucket = s3.Bucket(
