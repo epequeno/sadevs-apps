@@ -21,7 +21,7 @@ jobs:
     - name: Build Elm app
       run: |
         cd assets/elm
-        elm make src/Main.elm --output main.js
+        elm make src/Main.elm --output dst/main.js
 
     - name: CDK Synth
       uses: docker://scottbrenner/aws-cdk-action:latest
