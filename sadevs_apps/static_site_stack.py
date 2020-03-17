@@ -11,11 +11,18 @@ from common import DOMAIN_NAME
 
 class StaticSiteStack(core.Stack):
     def __init__(
-        self, scope: core.Construct, id: str, certificate_arn: str, **kwargs
+        self,
+        scope: core.Construct,
+        id: str,
+        certificate_arn: str,
+        hosted_zone_id,
+        **kwargs
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
-        hosted_zone = route53.HostedZone(self, "HostedZone", zone_name=DOMAIN_NAME)
+        hosted_zone = route53.HostedZone.from_hosted_zone_attributes(
+            self, "HostedZone", hosted_zone_id=hosted_zone_id, zone_name=DOMAIN_NAME
+        )
 
         site_bucket = s3.Bucket(
             self,

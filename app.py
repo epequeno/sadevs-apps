@@ -19,6 +19,7 @@ StaticSiteStack(
     app,
     "static-site",
     certificate_arn=apps_stack.certificate_arn,
+    hosted_zone_id=apps_stack.hosted_zone_id,
     env=core.Environment(
         account=os.environ["CDK_DEFAULT_ACCOUNT"], region="us-east-1",
     ),
