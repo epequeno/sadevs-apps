@@ -3,26 +3,34 @@
 from aws_cdk import core
 import os
 
-from sadevs_apps.sadevs_apps_stack import SadevsAppsStack
-from sadevs_apps.static_site_stack import StaticSiteStack
+from sadevs_apps.core_resources_stack import CoreResourcesStack
+from sadevs_apps.sadevs_apps_stack import ApiGwStack
+from sadevs_apps.static_site_stack import CFrontStaticSiteStack
 
+stack_env = env = core.Environment(
+    account=os.environ["CDK_DEFAULT_ACCOUNT"], region="us-east-1",
+)
 
 app = core.App()
-apps_stack = SadevsAppsStack(
+
+core_resources = CoreResourcesStack(app, "core-resources", env=stack_env,)
+
+apps_stack = ApiGwStack(
     app,
-    "sadevs-apps",
-    env=core.Environment(
-        account=os.environ["CDK_DEFAULT_ACCOUNT"], region="us-east-1",
-    ),
+    "apigw",
+    acm_certificate=core_resources.certificate,
+    hosted_zone=core_resources.hosted_zone,
+    domain_name=core_resources.domain_name,
+    env=stack_env,
 )
-StaticSiteStack(
+
+CFrontStaticSiteStack(
     app,
-    "static-site",
-    certificate_arn=apps_stack.certificate_arn,
-    hosted_zone_id=apps_stack.hosted_zone_id,
-    env=core.Environment(
-        account=os.environ["CDK_DEFAULT_ACCOUNT"], region="us-east-1",
-    ),
+    "cfront-static-site",
+    certificate_arn=core_resources.certificate.certificate_arn,
+    hosted_zone_id=core_resources.hosted_zone.hosted_zone_id,
+    domain_name=core_resources.domain_name,
+    env=stack_env,
 )
 
 app.synth()

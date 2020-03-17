@@ -6,28 +6,28 @@ from aws_cdk import (
     aws_cloudfront as cloudfront,
     aws_s3_deployment as s3_deployment,
 )
-from common import DOMAIN_NAME
 
 
-class StaticSiteStack(core.Stack):
+class CFrontStaticSiteStack(core.Stack):
     def __init__(
         self,
         scope: core.Construct,
         id: str,
         certificate_arn: str,
         hosted_zone_id,
+        domain_name,
         **kwargs
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
         hosted_zone = route53.HostedZone.from_hosted_zone_attributes(
-            self, "HostedZone", hosted_zone_id=hosted_zone_id, zone_name=DOMAIN_NAME
+            self, "HostedZone", hosted_zone_id=hosted_zone_id, zone_name=domain_name
         )
 
         site_bucket = s3.Bucket(
             self,
             "SiteBucket",
-            bucket_name=DOMAIN_NAME,
+            bucket_name=domain_name,
             website_index_document="index.html",
             website_error_document="error.html",
         )
@@ -38,7 +38,7 @@ class StaticSiteStack(core.Stack):
             self,
             "SiteDistribution",
             alias_configuration=cloudfront.AliasConfiguration(
-                acm_cert_ref=certificate_arn, names=[DOMAIN_NAME],
+                acm_cert_ref=certificate_arn, names=[domain_name],
             ),
             origin_configs=[
                 cloudfront.SourceConfiguration(
@@ -53,7 +53,7 @@ class StaticSiteStack(core.Stack):
         route53.ARecord(
             self,
             "SiteAliasRecord",
-            record_name=DOMAIN_NAME,
+            record_name=domain_name,
             target=route53.AddressRecordTarget.from_alias(
                 route53_targets.CloudFrontTarget(distribution)
             ),
