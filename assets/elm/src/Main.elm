@@ -1,8 +1,9 @@
-module Main exposing (Model, Msg, init, update, view)
+module Main exposing (Msg, init, update, view)
 
 import Browser
-import Button exposing (myButton)
-import Html exposing (..)
+import Html exposing (Html)
+import Layout exposing (mainLayout)
+import Model exposing (Entry, Model)
 
 
 main : Program () Model Msg
@@ -14,14 +15,15 @@ main =
         }
 
 
-type alias Model =
-    { count : Int
-    }
+entries : List Entry
+entries =
+    [ Entry "alice" "2020-01-01" "https://example.com"
+    ]
 
 
 init : Model
 init =
-    Model 0
+    Model entries
 
 
 type Msg
@@ -37,5 +39,4 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ text <| myButton ++ " " ++ String.fromInt model.count ]
+    mainLayout model
