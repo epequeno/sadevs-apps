@@ -4,7 +4,7 @@ from aws_cdk import core
 import os
 
 from sadevs_apps.core_resources_stack import CoreResourcesStack
-from sadevs_apps.sadevs_apps_stack import ApiGwStack
+from sadevs_apps.apigw_stack import ApiGwStack
 from sadevs_apps.static_site_stack import CFrontStaticSiteStack
 
 stack_env = env = core.Environment(
