@@ -13,10 +13,9 @@ class CoreResourcesStack(core.Stack):
             self, "HostedZone", zone_name=self._domain_name
         )
 
-        self._certificate = certificate_manager.DnsValidatedCertificate(
+        self._certificate = certificate_manager.Certificate(
             self,
             "sadevs-apps-cert",
-            hosted_zone=self._hosted_zone,
             domain_name=self._domain_name,
             subject_alternative_names=[f"*.{self._domain_name}"],
             validation_method=certificate_manager.ValidationMethod.DNS,
