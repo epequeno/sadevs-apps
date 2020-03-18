@@ -50,6 +50,7 @@ class CFrontStaticSiteStack(core.Stack):
             ],
         )
 
+        # noinspection PyTypeChecker
         route53.ARecord(
             self,
             "SiteAliasRecord",

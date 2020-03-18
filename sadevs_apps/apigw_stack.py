@@ -1,3 +1,9 @@
+"""
+defines the API gateway and associated lambdas
+"""
+# stdlib
+
+# 3rd party
 from aws_cdk import (
     core,
     aws_apigateway as apigw,
@@ -5,6 +11,8 @@ from aws_cdk import (
     aws_route53 as route53,
     aws_route53_targets as route53_targets,
 )
+
+# local
 
 
 class ApiGwStack(core.Stack):
@@ -19,21 +27,24 @@ class ApiGwStack(core.Stack):
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
-        hello_lambda = aws_lambda.Function(
+        db_get_lambda = aws_lambda.Function(
             self,
-            "HelloHandler",
+            "dbGet",
             runtime=aws_lambda.Runtime.PYTHON_3_8,
-            code=aws_lambda.Code.asset("assets/lambda/hello"),
-            handler="hello.handler",
+            code=aws_lambda.Code.asset("assets/lambda/db_get"),
+            handler="db_get.handler",
         )
 
-        gw = apigw.LambdaRestApi(self, "ApiGw", handler=hello_lambda)
+        self._db_get_lambda = db_get_lambda
+
+        gw = apigw.LambdaRestApi(self, "ApiGw", handler=db_get_lambda)
         gw_domain = gw.add_domain_name(
             "GWDomainName",
             certificate=acm_certificate,
             domain_name=f"api.{domain_name}",
         )
 
+        # noinspection PyTypeChecker
         route53.ARecord(
             self,
             "ApiGwARecord",
@@ -43,3 +54,7 @@ class ApiGwStack(core.Stack):
                 route53_targets.ApiGatewayDomain(gw_domain)
             ),
         )
+
+    @property
+    def db_get_lambda(self):
+        return self._db_get_lambda
