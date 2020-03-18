@@ -1,8 +1,18 @@
+"""
+defines core resources which will be shared or needed for several other parts of the infrastructure. These resources
+(and associated stack) should not change very often. High-level resources like hosted zones and SSL certificates are
+defined here.
+"""
+# stdlib
+
+# 3rd party
 from aws_cdk import (
     core,
     aws_route53 as route53,
     aws_certificatemanager as certificate_manager,
 )
+
+# local
 
 
 class CoreResourcesStack(core.Stack):
