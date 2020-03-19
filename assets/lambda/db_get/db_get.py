@@ -18,7 +18,7 @@ def read_db():
     return res
 
 
-def to_json(db_response):
+def to_apigw_response(db_response):
     items = []
     for db_item in db_response.get("Items"):
         item = {
@@ -28,9 +28,14 @@ def to_json(db_response):
         }
         items.append(item)
 
-    return json.dumps({"items": items})
+    return {
+        "statusCode": 200,
+        "headers": {},
+        "body": json.dumps({"items": items}),
+        "isBase64Encoded": False,
+    }
 
 
 def handler(_event, _context):
     res = read_db()
-    return to_json(res)
+    return to_apigw_response(res)
