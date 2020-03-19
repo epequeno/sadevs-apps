@@ -5,7 +5,26 @@ import Element exposing (Element, centerX, column, fill, layout, paddingEach, ro
 import Html exposing (Html)
 import Http
 import Json.Decode as Decode exposing (Decoder, field, int, list, map5, string)
-import Json.Decode.Pipeline exposing (hardcoded, optional, required)
+import Json.Decode.Pipeline exposing (required)
+
+
+httpErrorString : Http.Error -> String
+httpErrorString error =
+    case error of
+        Http.BadUrl text ->
+            "Bad Url: " ++ text
+
+        Http.Timeout ->
+            "Http Timeout"
+
+        Http.NetworkError ->
+            "Network Error"
+
+        Http.BadStatus response ->
+            "Bad Http Status: "
+
+        _ ->
+            "other"
 
 
 main : Program () Model Msg
@@ -18,12 +37,27 @@ main =
         }
 
 
+type alias Entry =
+    { user : String
+    , added_at : String
+    , url : String
+    }
+
+
 entryDecoder : Decoder Entry
 entryDecoder =
     Decode.succeed Entry
         |> required "user" string
         |> required "added_at" string
         |> required "url" string
+
+
+type alias EntriesResponse =
+    { items : List Entry }
+
+
+type Msg
+    = GotJson (Result Http.Error EntriesResponse)
 
 
 entriesResponseDecoder : Decoder EntriesResponse
@@ -43,33 +77,19 @@ readDb =
 type alias Model =
     { entries : List Entry
     , pageState : PageState
-    }
-
-
-type alias EntriesResponse =
-    { items : List Entry }
-
-
-type alias Entry =
-    { user : String
-    , added_at : String
-    , url : String
+    , errorString : String
     }
 
 
 type PageState
     = Failure
     | Loading
-    | Success EntriesResponse
+    | Success
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model [] Loading, readDb )
-
-
-type Msg
-    = GotJson (Result Http.Error EntriesResponse)
+    ( Model [] Loading "", readDb )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -78,10 +98,10 @@ update msg model =
         GotJson result ->
             case result of
                 Ok entResp ->
-                    ( { model | entries = entResp.items, pageState = Success entResp }, Cmd.none )
+                    ( { model | entries = entResp.items, pageState = Success }, Cmd.none )
 
-                Err _ ->
-                    ( { model | pageState = Failure }, Cmd.none )
+                Err e ->
+                    ( { model | pageState = Failure, errorString = httpErrorString e }, Cmd.none )
 
 
 type alias Document msg =
@@ -98,11 +118,11 @@ view model =
                 Loading ->
                     "loading..."
 
-                Success _ ->
+                Success ->
                     "satx.dev/slack/#library"
 
                 Failure ->
-                    "json failure"
+                    "fail: " ++ model.errorString
     in
     { title = title
     , body = [ mainLayout model ]
