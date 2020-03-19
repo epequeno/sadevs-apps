@@ -24,7 +24,7 @@ def to_apigw_response(db_response):
         item = {
             "user": db_item.get("user").get("S"),
             "added_at": db_item.get("added_at").get("S"),
-            "url": db_item.get("added_at").get("S"),
+            "url": db_item.get("url").get("S"),
         }
         items.append(item)
 
