@@ -30,7 +30,7 @@ def to_apigw_response(db_response):
 
     return {
         "statusCode": 200,
-        "headers": {},
+        "headers": {"headers": {"Access-Control-Allow-Origin": "*"}},
         "body": json.dumps({"items": items}),
         "isBase64Encoded": False,
     }
