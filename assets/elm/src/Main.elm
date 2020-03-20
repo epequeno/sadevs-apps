@@ -1,15 +1,17 @@
 module Main exposing (Msg, init, update, view)
 
 import Browser
-import Element exposing (Element, centerX, column, fill, layout, paddingEach, row, table, text)
+import Element exposing (Element, centerX, column, el, fill, layout, newTabLink, padding, paddingEach, row, spacing, table, text)
+import Element.Border as Border
+import Element.Font as Font
 import Html exposing (Html)
 import Http
-import Json.Decode as Decode exposing (Decoder, field, int, list, map5, string)
+import Json.Decode as Decode exposing (Decoder, list, string)
 import Json.Decode.Pipeline exposing (required)
 
 
-httpErrorString : Http.Error -> String
-httpErrorString error =
+httpErrorToString : Http.Error -> String
+httpErrorToString error =
     case error of
         Http.BadUrl text ->
             "Bad Url: " ++ text
@@ -18,13 +20,13 @@ httpErrorString error =
             "Http Timeout"
 
         Http.NetworkError ->
-            "Network Error"
+            "Network Error, maybe CORS headers?"
 
-        Http.BadStatus response ->
-            "Bad Http Status: "
+        Http.BadStatus _ ->
+            "Bad Http Status"
 
         _ ->
-            "other"
+            "Other Http error"
 
 
 main : Program () Model Msg
@@ -77,7 +79,7 @@ readDb =
 type alias Model =
     { entries : List Entry
     , pageState : PageState
-    , errorString : String
+    , httpErrorString : String
     }
 
 
@@ -97,11 +99,11 @@ update msg model =
     case msg of
         GotJson result ->
             case result of
-                Ok entResp ->
-                    ( { model | entries = entResp.items, pageState = Success }, Cmd.none )
+                Ok resp ->
+                    ( { model | entries = resp.items, pageState = Success }, Cmd.none )
 
                 Err e ->
-                    ( { model | pageState = Failure, errorString = httpErrorString e }, Cmd.none )
+                    ( { model | pageState = Failure, httpErrorString = httpErrorToString e }, Cmd.none )
 
 
 type alias Document msg =
@@ -122,7 +124,7 @@ view model =
                     "satx.dev/slack/#library"
 
                 Failure ->
-                    "fail: " ++ model.errorString
+                    "fail: " ++ model.httpErrorString
     in
     { title = title
     , body = [ mainLayout model ]
@@ -131,9 +133,10 @@ view model =
 
 mainLayout : Model -> Html.Html msg
 mainLayout model =
-    layout [] <| mainCol model
+    layout [ padding 5 ] <| mainCol model
 
 
+edges : { top : Int, bottom : Int, left : Int, right : Int }
 edges =
     { top = 0
     , bottom = 0
@@ -142,10 +145,12 @@ edges =
     }
 
 
+header : Element msg
 header =
     row
-        [ paddingEach { edges | bottom = 10, top = 10 }
+        [ paddingEach { edges | bottom = 20, top = 10 }
         , centerX
+        , Font.size 30
         ]
         [ text "saved links from #library" ]
 
@@ -160,22 +165,125 @@ mainCol model =
         ]
 
 
+styledHeader headerText =
+    el
+        [ Font.size 20
+        , Font.center
+        , Font.bold
+        , Border.widthEach { edges | bottom = 1 }
+        , paddingEach { edges | bottom = 5 }
+        ]
+    <|
+        text headerText
+
+
+timestampCell cellText =
+    el
+        [ Border.widthEach { edges | bottom = 1, left = 1 }
+        , padding 8
+        , Font.center
+        ]
+    <|
+        text cellText
+
+
+indexCell cellText =
+    el
+        [ Border.widthEach { edges | bottom = 1, left = 1 }
+        , padding 8
+        ]
+    <|
+        text cellText
+
+
+userCell cellText =
+    el
+        [ Border.widthEach { edges | bottom = 1, left = 1 }
+        , padding 8
+        , Font.center
+        ]
+    <|
+        text cellText
+
+
+urlCell cellText =
+    el
+        [ Border.widthEach { edges | bottom = 1, right = 1, left = 1 }
+        , padding 8
+        , Font.center
+        ]
+    <|
+        newTabLink [] { url = cellText, label = text cellText }
+
+
+type alias IndexedEntry =
+    { index : Int
+    , user : String
+    , added_at : String
+    , url : String
+    }
+
+
+toIndexedEntry ( ix, entry ) =
+    IndexedEntry ix entry.user entry.added_at entry.url
+
+
+indexedData entries =
+    List.map toIndexedEntry <| List.indexedMap Tuple.pair <| List.reverse entries
+
+
+getDate timestamp =
+    case List.head <| String.split "." timestamp of
+        Just datetime ->
+            case List.head (String.split "T" datetime) of
+                Just date ->
+                    date
+
+                Nothing ->
+                    ""
+
+        Nothing ->
+            ""
+
+
+getTime timestamp =
+    case List.head <| String.split "." timestamp of
+        Just datetime ->
+            case List.head <| List.reverse (String.split "T" datetime) of
+                Just date ->
+                    date
+
+                Nothing ->
+                    ""
+
+        Nothing ->
+            ""
+
+
+makeFormattedTimestamp timestamp =
+    getDate timestamp ++ " " ++ getTime timestamp ++ " UTC"
+
+
 entryTable : List Entry -> Element msg
 entryTable entries =
-    table []
-        { data = entries
+    table [ Font.size 14 ]
+        { data = List.reverse <| indexedData entries
         , columns =
-            [ { header = text "user name"
-              , width = fill
-              , view = \e -> text e.user
+            [ { header = styledHeader " "
+              , width = Element.px 25
+              , view = \e -> indexCell <| String.fromInt e.index
               }
-            , { header = text "created at"
+            , { header = styledHeader "user"
               , width = fill
-              , view = \e -> text e.added_at
+              , view = \e -> userCell e.user
               }
-            , { header = text "url"
+            , { header = styledHeader "created at"
               , width = fill
-              , view = \e -> text e.url
+              , view = \e -> timestampCell <| makeFormattedTimestamp e.added_at
+              }
+            , { header = styledHeader "url"
+              , width = fill
+              , view = \e -> urlCell e.url
               }
             ]
         }
