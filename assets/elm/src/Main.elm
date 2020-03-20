@@ -261,7 +261,7 @@ getTime timestamp =
 
 
 makeFormattedTimestamp timestamp =
-    getDate timestamp ++ " " ++ getTime timestamp ++ " UTC"
+    getDate timestamp ++ " " ++ getTime timestamp
 
 
 entryTable : List Entry -> Element msg
@@ -277,7 +277,7 @@ entryTable entries =
               , width = fill
               , view = \e -> userCell e.user
               }
-            , { header = styledHeader "created at"
+            , { header = styledHeader "added at (utc)"
               , width = fill
               , view = \e -> timestampCell <| makeFormattedTimestamp e.added_at
               }
