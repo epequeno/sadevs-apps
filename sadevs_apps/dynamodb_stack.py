@@ -5,7 +5,7 @@ from aws_cdk import (
 
 
 class DynamoDBStack(core.Stack):
-    def __init__(self, scope: core.Construct, id: str, reader_lambda, **kwargs) -> None:
+    def __init__(self, scope: core.Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         self._table = dynamodb.Table(
@@ -16,21 +16,19 @@ class DynamoDBStack(core.Stack):
                 name="partition_key", type=dynamodb.AttributeType.STRING
             ),
             sort_key=dynamodb.Attribute(
-                name="added_at", type=dynamodb.AttributeType.STRING
+                name="timestamp", type=dynamodb.AttributeType.STRING
             ),
         )
 
         self._table.add_global_secondary_index(
-            index_name="partition_key-added_at-index",
+            index_name="partition_key-timestamp-index",
             partition_key=dynamodb.Attribute(
                 name="partition_key", type=dynamodb.AttributeType.STRING
             ),
             sort_key=dynamodb.Attribute(
-                name="added_at", type=dynamodb.AttributeType.STRING
+                name="timestamp", type=dynamodb.AttributeType.STRING
             ),
         )
-
-        self._table.grant_read_data(reader_lambda)
 
     @property
     def table(self):

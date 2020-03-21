@@ -23,15 +23,6 @@ jobs:
         cd assets/elm
         elm make src/Main.elm --output dst/main.js --optimize
 
-    - name: CDK Synth
-      uses: docker://scottbrenner/aws-cdk-action:latest
-      with:
-        args: synth
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        CDK_DEFAULT_ACCOUNT: ${{ secrets.CDK_DEFAULT_ACCOUNT }}
-
     - name: CDK Deploy
       uses: docker://scottbrenner/aws-cdk-action:latest
       with:
