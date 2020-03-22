@@ -1,5 +1,5 @@
 """
-defines the ecs task which runs rusty slack bot ecs task
+defines the ecs resources needed to run the rusty slack bot on fargate
 see: https://github.com/epequeno/rusty
 
 note: rusty is a legacy project and so has it's own build/deploy configuration
@@ -27,20 +27,14 @@ class RustyEcsStack(core.Stack):
             name="Public", subnet_type=ec2.SubnetType.PUBLIC, cidr_mask=24
         )
 
-        private_subnet = ec2.SubnetConfiguration(
-            name="Private", subnet_type=ec2.SubnetType.PRIVATE, cidr_mask=24
-        )
-
         self._vpc = ec2.Vpc(
             self,
             "RustyVpc",
             cidr="10.0.0.0/16",
             enable_dns_hostnames=True,
             enable_dns_support=True,
-            max_azs=2,
-            nat_gateway_provider=ec2.NatProvider.gateway(),
-            nat_gateways=1,
-            subnet_configuration=[public_subnet, private_subnet],
+            max_azs=1,
+            subnet_configuration=[public_subnet],
         )
 
         self._cluster = ecs.Cluster(self, "RustyEcsCluster", vpc=self._vpc)
@@ -60,7 +54,8 @@ class RustyEcsStack(core.Stack):
             "RustyFargateService",
             task_definition=self._task_definition,
             cluster=self._cluster,
+            vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
         )
 
-        # ecr_repository.grant_pull_push(self._task_definition)
-        # dynamodb_table.grant_read_write_data(self._task_definition)
+        ecr_repository.grant_pull(self._task_definition.execution_role)
+        dynamodb_table.grant_read_write_data(self._task_definition.execution_role)
