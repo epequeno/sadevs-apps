@@ -41,7 +41,7 @@ main =
 
 type alias Entry =
     { user : String
-    , added_at : String
+    , timestamp : String
     , url : String
     }
 
@@ -50,7 +50,7 @@ entryDecoder : Decoder Entry
 entryDecoder =
     Decode.succeed Entry
         |> required "user" string
-        |> required "added_at" string
+        |> required "timestamp" string
         |> required "url" string
 
 
@@ -219,13 +219,13 @@ urlCell cellText =
 type alias IndexedEntry =
     { index : Int
     , user : String
-    , added_at : String
+    , timestamp : String
     , url : String
     }
 
 
 toIndexedEntry ( ix, entry ) =
-    IndexedEntry ix entry.user entry.added_at entry.url
+    IndexedEntry ix entry.user entry.timestamp entry.url
 
 
 indexedData entries =
@@ -277,9 +277,9 @@ entryTable entries =
               , width = fill
               , view = \e -> userCell e.user
               }
-            , { header = styledHeader "added at (utc)"
+            , { header = styledHeader "timestamp"
               , width = fill
-              , view = \e -> timestampCell <| makeFormattedTimestamp e.added_at
+              , view = \e -> userCell e.timestamp
               }
             , { header = styledHeader "url"
               , width = fill

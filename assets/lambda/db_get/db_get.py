@@ -6,13 +6,14 @@ def read_db():
     ddb_client = boto3.client("dynamodb")
     res = ddb_client.query(
         TableName="library",
-        IndexName="partition_key-added_at-index",
+        IndexName="partition_key-timestamp-index",
         Select="ALL_ATTRIBUTES",
         ScanIndexForward=False,
-        KeyConditionExpression="partition_key = :partition AND added_at >= :t1",
+        KeyConditionExpression="partition_key = :partition AND #timestamp >= :t1",
+        ExpressionAttributeNames={"#timestamp": "timestamp"},
         ExpressionAttributeValues={
             ":partition": {"S": "records"},
-            ":t1": {"S": "2020"},
+            ":t1": {"S": "1577836800"},  # Jan 1 2020
         },
     )
     return res
@@ -23,7 +24,7 @@ def to_apigw_response(db_response):
     for db_item in db_response.get("Items"):
         item = {
             "user": db_item.get("user").get("S"),
-            "added_at": db_item.get("added_at").get("S"),
+            "timestamp": db_item.get("timestamp").get("S"),
             "url": db_item.get("url").get("S"),
         }
         items.append(item)
