@@ -24,7 +24,7 @@ stack_env = env = core.Environment(
 
 app = core.App()
 
-core_resources = CoreResourcesStack(app, "core-resources", env=stack_env,)
+core_resources = CoreResourcesStack(app, "core-resources", env=stack_env)
 dynamodb_stack = DynamoDBStack(app, "dynamodb", env=stack_env)
 
 apigw_stack = ApiGwStack(
@@ -51,7 +51,7 @@ rusty_ecs_stack = RustyEcsStack(
     "rusty-ecs",
     env=env,
     dynamodb_table=dynamodb_stack.table,
-    ecr_repository=core_resources.ecr_repository,
+    slack_token_secret_arn=os.environ["SLACKBOT_TOKEN_ARN"],
 )
 
 app.synth()
