@@ -23,6 +23,7 @@ class ApiGwStack(core.Stack):
         acm_certificate,
         hosted_zone,
         domain_name,
+        dynamodb_table,
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
@@ -54,6 +55,8 @@ class ApiGwStack(core.Stack):
                 route53_targets.ApiGatewayDomain(gw_domain)
             ),
         )
+
+        dynamodb_table.grant_read_data(self._db_get_lambda)
 
     @property
     def db_get_lambda(self):

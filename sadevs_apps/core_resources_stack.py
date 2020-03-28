@@ -10,6 +10,7 @@ from aws_cdk import (
     core,
     aws_route53 as route53,
     aws_certificatemanager as certificate_manager,
+    aws_ecr as ecr,
 )
 
 # local
@@ -31,6 +32,10 @@ class CoreResourcesStack(core.Stack):
             validation_method=certificate_manager.ValidationMethod.DNS,
         )
 
+        self._ecr_repository = ecr.Repository(
+            self, "SadevsAppsEcrRepo", repository_name="sadevs-repo"
+        )
+
     @property
     def domain_name(self):
         return self._domain_name
@@ -42,3 +47,7 @@ class CoreResourcesStack(core.Stack):
     @property
     def hosted_zone(self):
         return self._hosted_zone
+
+    @property
+    def ecr_repository(self):
+        return self._ecr_repository

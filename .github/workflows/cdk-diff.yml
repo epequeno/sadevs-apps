@@ -1,6 +1,5 @@
 name: Diff
 
-# only run diff for non-master branches
 on:
   push:
     branches-ignore:
@@ -23,7 +22,6 @@ jobs:
       run: |
         cd assets/elm
         elm make src/Main.elm --output main.js
-
 
     - name: CDK Diff
       uses: docker://scottbrenner/aws-cdk-action:latest

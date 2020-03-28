@@ -13,6 +13,7 @@ from sadevs_apps.core_resources_stack import CoreResourcesStack
 from sadevs_apps.apigw_stack import ApiGwStack
 from sadevs_apps.static_site_stack import CFrontStaticSiteStack
 from sadevs_apps.dynamodb_stack import DynamoDBStack
+from sadevs_apps.rusty_ecs_stack import RustyEcsStack
 
 # local
 
@@ -24,6 +25,7 @@ stack_env = env = core.Environment(
 app = core.App()
 
 core_resources = CoreResourcesStack(app, "core-resources", env=stack_env,)
+dynamodb_stack = DynamoDBStack(app, "dynamodb", env=stack_env)
 
 apigw_stack = ApiGwStack(
     app,
@@ -32,6 +34,7 @@ apigw_stack = ApiGwStack(
     acm_certificate=core_resources.certificate,
     hosted_zone=core_resources.hosted_zone,
     domain_name=core_resources.domain_name,
+    dynamodb_table=dynamodb_stack.table,
 )
 
 cfront_static_site_stack = CFrontStaticSiteStack(
@@ -43,8 +46,12 @@ cfront_static_site_stack = CFrontStaticSiteStack(
     domain_name=core_resources.domain_name,
 )
 
-dynamodb_stack = DynamoDBStack(
-    app, "dynamodb", env=stack_env, reader_lambda=apigw_stack.db_get_lambda
+rusty_ecs_stack = RustyEcsStack(
+    app,
+    "rusty-ecs",
+    env=env,
+    dynamodb_table=dynamodb_stack.table,
+    ecr_repository=core_resources.ecr_repository,
 )
 
 app.synth()
