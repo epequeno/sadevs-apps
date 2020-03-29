@@ -40,6 +40,7 @@ class RustyEcsStack(core.Stack):
                 ecr.LifecycleRule(
                     description="remove unused after 7 days",
                     max_image_age=core.Duration.days(7),
+                    tag_status=ecr.TagStatus.UNTAGGED,
                 )
             ],
         )
