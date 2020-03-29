@@ -36,6 +36,12 @@ class RustyEcsStack(core.Stack):
             "RustyEcrRepo",
             repository_name="rusty",
             removal_policy=core.RemovalPolicy.DESTROY,
+            lifecycle_rules=[
+                ecr.LifecycleRule(
+                    description="remove unused after 7 days",
+                    max_image_age=core.Duration.days(7),
+                )
+            ],
         )
 
         public_subnet = ec2.SubnetConfiguration(
