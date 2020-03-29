@@ -97,7 +97,7 @@ class RustyEcsStack(core.Stack):
         )
 
         self._ecr_repository.grant_pull(self._task_definition.execution_role)
-        dynamodb_table.grant_read_write_data(self._task_definition.execution_role)
+        dynamodb_table.grant_read_write_data(self._task_definition.task_role)
 
     @property
     def ecr_repository(self):
