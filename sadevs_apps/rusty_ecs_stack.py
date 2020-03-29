@@ -65,7 +65,7 @@ class RustyEcsStack(core.Stack):
             )
         )
 
-        self._task_def_env_vars = {"RUST_LOG": "debug"}
+        self._task_def_env_vars = {"RUST_LOG": "rusty_slackbot"}
         self._task_def_secrets = {"SLACKBOT_TOKEN_SECRET": slackbot_token_secret}
 
         self._task_definition = ecs.FargateTaskDefinition(
