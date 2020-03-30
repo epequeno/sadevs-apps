@@ -49,7 +49,7 @@ cfront_static_site_stack = CFrontStaticSiteStack(
 rusty_ecs_stack = RustyEcsStack(
     app,
     "rusty-ecs",
-    env=env,
+    env=stack_env,
     dynamodb_table=dynamodb_stack.table,
     slack_token_secret_arn=os.environ["SLACKBOT_TOKEN_ARN"],
 )
