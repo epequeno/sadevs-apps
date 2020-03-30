@@ -1,13 +1,90 @@
 module Main exposing (Msg, init, update, view)
 
 import Browser
-import Element exposing (Element, centerX, column, el, fill, layout, newTabLink, padding, paddingEach, row, spacing, table, text)
+import Element exposing (Element, centerX, column, el, fill, layout, newTabLink, padding, paddingEach, row, table, text)
 import Element.Border as Border
 import Element.Font as Font
 import Html exposing (Html)
 import Http
 import Json.Decode as Decode exposing (Decoder, list, string)
 import Json.Decode.Pipeline exposing (required)
+import ParseInt exposing (parseInt)
+import Time exposing (Month(..), millisToPosix, toDay, toHour, toMinute, toMonth, toSecond, toYear, utc)
+
+
+zeroPad : String -> String
+zeroPad s =
+    if String.length s == 1 then
+        "0" ++ s
+
+    else
+        s
+
+
+toMonthNumber : Month -> String
+toMonthNumber month =
+    case month of
+        Jan ->
+            "01"
+
+        Feb ->
+            "02"
+
+        Mar ->
+            "03"
+
+        Apr ->
+            "04"
+
+        May ->
+            "05"
+
+        Jun ->
+            "06"
+
+        Jul ->
+            "07"
+
+        Aug ->
+            "08"
+
+        Sep ->
+            "09"
+
+        Oct ->
+            "10"
+
+        Nov ->
+            "11"
+
+        Dec ->
+            "12"
+
+
+toUtcString : Time.Posix -> String
+toUtcString time =
+    String.fromInt (toYear utc time)
+        ++ "-"
+        ++ zeroPad (toMonthNumber (toMonth utc time))
+        ++ "-"
+        ++ zeroPad (String.fromInt (toDay utc time))
+        ++ " "
+        ++ zeroPad
+            (String.fromInt (toHour utc time))
+        ++ ":"
+        ++ zeroPad (String.fromInt (toMinute utc time))
+        ++ ":"
+        ++ zeroPad (String.fromInt (toSecond utc time))
+
+
+timestampToUtcString : String -> String
+timestampToUtcString timestamp =
+    case parseInt timestamp of
+        Ok n ->
+            toUtcString <| millisToPosix (n * 1000)
+
+        Err _ ->
+            toUtcString <| millisToPosix 1577836800
 
 
 httpErrorToString : Http.Error -> String
@@ -157,14 +234,25 @@ header =
 
 mainCol : Model -> Element msg
 mainCol model =
+    let
+        content =
+            case model.pageState of
+                Loading ->
+                    [ header, el [ centerX ] <| text "Loading..." ]
+
+                Success ->
+                    [ header, entryTable model.entries ]
+
+                Failure ->
+                    [ header, el [] <| text "Failure :(" ]
+    in
     column
         [ centerX
         ]
-        [ header
-        , entryTable model.entries
-        ]
+        content
 
 
+styledHeader : String -> Element msg
 styledHeader headerText =
     el
         [ Font.size 20
@@ -177,16 +265,7 @@ styledHeader headerText =
         text headerText
 
 
-timestampCell cellText =
-    el
-        [ Border.widthEach { edges | bottom = 1, left = 1 }
-        , padding 8
-        , Font.center
-        ]
-    <|
-        text cellText
-
-
+indexCell : String -> Element msg
 indexCell cellText =
     el
         [ Border.widthEach { edges | bottom = 1, left = 1 }
@@ -196,6 +275,7 @@ indexCell cellText =
         text cellText
 
 
+userCell : String -> Element msg
 userCell cellText =
     el
         [ Border.widthEach { edges | bottom = 1, left = 1 }
@@ -206,6 +286,7 @@ userCell cellText =
         text cellText
 
 
+urlCell : String -> Element msg
 urlCell cellText =
     el
         [ Border.widthEach { edges | bottom = 1, right = 1, left = 1 }
@@ -224,44 +305,14 @@ type alias IndexedEntry =
     }
 
 
+toIndexedEntry : ( Int, Entry ) -> IndexedEntry
 toIndexedEntry ( ix, entry ) =
     IndexedEntry ix entry.user entry.timestamp entry.url
 
 
+indexedData : List Entry -> List IndexedEntry
 indexedData entries =
     List.map toIndexedEntry <| List.indexedMap Tuple.pair <| List.reverse entries
-
-
-getDate timestamp =
-    case List.head <| String.split "." timestamp of
-        Just datetime ->
-            case List.head (String.split "T" datetime) of
-                Just date ->
-                    date
-
-                Nothing ->
-                    ""
-
-        Nothing ->
-            ""
-
-
-getTime timestamp =
-    case List.head <| String.split "." timestamp of
-        Just datetime ->
-            case List.head <| List.reverse (String.split "T" datetime) of
-                Just date ->
-                    date
-
-                Nothing ->
-                    ""
-
-        Nothing ->
-            ""
-
-
-makeFormattedTimestamp timestamp =
-    getDate timestamp ++ " " ++ getTime timestamp
 
 
 entryTable : List Entry -> Element msg
@@ -277,9 +328,9 @@ entryTable entries =
               , width = fill
               , view = \e -> userCell e.user
               }
-            , { header = styledHeader "timestamp"
+            , { header = styledHeader "timestamp (utc)"
               , width = fill
-              , view = \e -> userCell e.timestamp
+              , view = \e -> userCell <| timestampToUtcString e.timestamp
               }
             , { header = styledHeader "url"
               , width = fill
