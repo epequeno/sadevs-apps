@@ -73,8 +73,6 @@ toUtcString time =
             (String.fromInt (toHour utc time))
         ++ ":"
         ++ zeroPad (String.fromInt (toMinute utc time))
-        ++ ":"
-        ++ zeroPad (String.fromInt (toSecond utc time))
 
 
 timestampToUtcString : String -> String
@@ -235,27 +233,29 @@ header =
 mainCol : Model -> Element msg
 mainCol model =
     let
-        content =
+        body =
             case model.pageState of
                 Loading ->
-                    [ header, el [ centerX ] <| text "Loading..." ]
+                    el [ centerX ] <| text "loading ..."
 
                 Success ->
-                    [ header, entryTable model.entries ]
+                    entryTable model.entries
 
                 Failure ->
-                    [ header, el [] <| text "Failure :(" ]
+                    el [] <| text "failed to load data from api :("
     in
     column
         [ centerX
         ]
-        content
+        [ header
+        , body
+        ]
 
 
 styledHeader : String -> Element msg
 styledHeader headerText =
     el
-        [ Font.size 20
+        [ Font.size 18
         , Font.center
         , Font.bold
         , Border.widthEach { edges | bottom = 1 }
@@ -312,7 +312,10 @@ toIndexedEntry ( ix, entry ) =
 
 indexedData : List Entry -> List IndexedEntry
 indexedData entries =
-    List.map toIndexedEntry <| List.indexedMap Tuple.pair <| List.reverse entries
+    entries
+        |> List.reverse
+        |> List.indexedMap Tuple.pair
+        |> List.map toIndexedEntry
 
 
 entryTable : List Entry -> Element msg
