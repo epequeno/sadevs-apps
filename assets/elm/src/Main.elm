@@ -9,7 +9,7 @@ import Http
 import Json.Decode as Decode exposing (Decoder, list, string)
 import Json.Decode.Pipeline exposing (required)
 import ParseInt exposing (parseInt)
-import Time exposing (Month(..), millisToPosix, toDay, toHour, toMinute, toMonth, toSecond, toYear, utc)
+import Time exposing (Month(..), millisToPosix, toDay, toHour, toMinute, toMonth, toYear, utc)
 
 
 zeroPad : String -> String
@@ -115,7 +115,7 @@ main =
 
 
 type alias Entry =
-    { user : String
+    { first_name : String
     , timestamp : String
     , url : String
     }
@@ -124,7 +124,7 @@ type alias Entry =
 entryDecoder : Decoder Entry
 entryDecoder =
     Decode.succeed Entry
-        |> required "user" string
+        |> required "first_name" string
         |> required "timestamp" string
         |> required "url" string
 
@@ -307,7 +307,7 @@ type alias IndexedEntry =
 
 toIndexedEntry : ( Int, Entry ) -> IndexedEntry
 toIndexedEntry ( ix, entry ) =
-    IndexedEntry ix entry.user entry.timestamp entry.url
+    IndexedEntry ix entry.first_name entry.timestamp entry.url
 
 
 indexedData : List Entry -> List IndexedEntry
@@ -327,7 +327,7 @@ entryTable entries =
               , width = Element.px 25
               , view = \e -> indexCell <| String.fromInt e.index
               }
-            , { header = styledHeader "user"
+            , { header = styledHeader "first name"
               , width = fill
               , view = \e -> userCell e.user
               }

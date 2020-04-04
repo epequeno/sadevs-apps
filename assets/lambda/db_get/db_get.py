@@ -23,7 +23,7 @@ def to_apigw_response(db_response):
     items = []
     for db_item in db_response.get("Items"):
         item = {
-            "user": db_item.get("user").get("S"),
+            "first_name": db_item.get("real_name").get("S").split(" ")[0],
             "timestamp": db_item.get("timestamp").get("S"),
             "url": db_item.get("url").get("S"),
         }
