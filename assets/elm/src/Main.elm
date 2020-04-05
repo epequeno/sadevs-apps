@@ -115,7 +115,7 @@ main =
 
 
 type alias Entry =
-    { first_name : String
+    { handle : String
     , timestamp : String
     , url : String
     }
@@ -124,7 +124,7 @@ type alias Entry =
 entryDecoder : Decoder Entry
 entryDecoder =
     Decode.succeed Entry
-        |> required "first_name" string
+        |> required "handle" string
         |> required "timestamp" string
         |> required "url" string
 
@@ -307,7 +307,7 @@ type alias IndexedEntry =
 
 toIndexedEntry : ( Int, Entry ) -> IndexedEntry
 toIndexedEntry ( ix, entry ) =
-    IndexedEntry ix entry.first_name entry.timestamp entry.url
+    IndexedEntry ix entry.handle entry.timestamp entry.url
 
 
 indexedData : List Entry -> List IndexedEntry
@@ -327,7 +327,7 @@ entryTable entries =
               , width = Element.px 25
               , view = \e -> indexCell <| String.fromInt e.index
               }
-            , { header = styledHeader "first name"
+            , { header = styledHeader "handle"
               , width = fill
               , view = \e -> userCell e.user
               }
