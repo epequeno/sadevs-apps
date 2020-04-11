@@ -4,6 +4,7 @@ import setuptools
 with open("README.md") as fp:
     long_description = fp.read()
 
+cdk_version = "1.32.2"
 
 setuptools.setup(
     name="sadevs_apps",
@@ -16,14 +17,14 @@ setuptools.setup(
     packages=setuptools.find_packages(where="sadevs_apps"),
     install_requires=[
         "boto3",
-        "aws-cdk.core==1.27.0",
-        "aws-cdk.aws-apigateway==1.27.0",
-        "aws_cdk.aws_route53_targets==1.27.0",
-        "aws_cdk.aws_cloudfront==1.27.0",
-        "aws_cdk.aws_s3==1.27.0",
-        "aws_cdk.aws_s3_deployment==1.27.0",
-        "aws_cdk.aws_dynamodb==1.27.0",
-        "aws_cdk.aws_secretsmanager==1.27.0",
+        f"aws-cdk.core=={cdk_version}",
+        f"aws-cdk.aws-apigateway=={cdk_version}",
+        f"aws_cdk.aws_route53_targets=={cdk_version}",
+        f"aws_cdk.aws_cloudfront=={cdk_version}",
+        f"aws_cdk.aws_s3=={cdk_version}",
+        f"aws_cdk.aws_s3_deployment=={cdk_version}",
+        f"aws_cdk.aws_dynamodb=={cdk_version}",
+        f"aws_cdk.aws_secretsmanager=={cdk_version}",
     ],
     python_requires=">=3.6",
     classifiers=[
