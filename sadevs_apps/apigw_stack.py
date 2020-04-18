@@ -45,7 +45,6 @@ class ApiGwStack(core.Stack):
             domain_name=f"api.{domain_name}",
         )
 
-        # noinspection PyTypeChecker
         route53.ARecord(
             self,
             "ApiGwARecord",
