@@ -25,6 +25,7 @@ setuptools.setup(
         f"aws_cdk.aws_s3_deployment=={cdk_version}",
         f"aws_cdk.aws_dynamodb=={cdk_version}",
         f"aws_cdk.aws_secretsmanager=={cdk_version}",
+        f"aws_cdk.aws_ecs=={cdk_version}",
     ],
     python_requires=">=3.6",
     classifiers=[
