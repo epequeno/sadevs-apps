@@ -4,7 +4,7 @@ import setuptools
 with open("README.md") as fp:
     long_description = fp.read()
 
-cdk_version = "1.32.2"
+cdk_version = "1.35.0"
 
 setuptools.setup(
     name="sadevs_apps",
@@ -25,6 +25,7 @@ setuptools.setup(
         f"aws_cdk.aws_s3_deployment=={cdk_version}",
         f"aws_cdk.aws_dynamodb=={cdk_version}",
         f"aws_cdk.aws_secretsmanager=={cdk_version}",
+        f"aws_cdk.aws_ecs=={cdk_version}",
     ],
     python_requires=">=3.6",
     classifiers=[
