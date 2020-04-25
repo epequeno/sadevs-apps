@@ -24,7 +24,8 @@ jobs:
         elm make src/Main.elm --output main.js
 
     - name: CDK Diff
-      uses: docker://scottbrenner/aws-cdk-action:latest
+      # uses: docker://scottbrenner/aws-cdk-action:latest  # as of 2020-04-25, does not have required CLI version
+      uses: docker://epequeno/aws-cdk-action:latest
       with:
         args: diff
       env:
