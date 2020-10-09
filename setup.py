@@ -4,7 +4,7 @@ import setuptools
 with open("README.md") as fp:
     long_description = fp.read()
 
-cdk_version = "1.65.0"
+cdk_version = "1.67.0"
 
 setuptools.setup(
     name="sadevs_apps",
