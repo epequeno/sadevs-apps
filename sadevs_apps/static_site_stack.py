@@ -24,12 +24,15 @@ class CFrontStaticSiteStack(core.Stack):
             self, "HostedZone", hosted_zone_id=hosted_zone_id, zone_name=domain_name
         )
 
-        site_bucket = s3.Bucket(
+        # since the bucket has already been created from previous deployments
+        # we build the bucket object from attributes here rather than creating a
+        # new bucket.
+        # This change is required since we had to re-create this entire stack 
+        # after the bucket had been originally created.
+        site_bucket = s3.Bucket.from_bucket_attributes(
             self,
             "SiteBucket",
-            bucket_name=domain_name,
-            website_index_document="index.html",
-            website_error_document="error.html",
+            bucket_name=domain_name
         )
 
         oai = cloudfront.OriginAccessIdentity(self, "OriginAccessIdentity")
