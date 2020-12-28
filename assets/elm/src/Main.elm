@@ -1,10 +1,13 @@
 module Main exposing (Msg, init, update, view)
 
 import Browser
-import Element exposing (Element, centerX, column, el, fill, layout, newTabLink, padding, paddingEach, row, table, text)
+import Browser.Navigation exposing (back)
+import Element exposing (Element, centerX, centerY, clipX, column, el, fill, fillPortion, height, layout, newTabLink, padding, paddingEach, px, rgb255, rgba255, row, scrollbarX, spacing, table, text, width)
+import Element.Background
 import Element.Border as Border
 import Element.Font as Font
-import Html exposing (Html)
+import Html exposing (Html, col, div, p)
+import Html.Attributes exposing (style)
 import Http
 import Json.Decode as Decode exposing (Decoder, list, string)
 import Json.Decode.Pipeline exposing (required)
@@ -206,9 +209,32 @@ view model =
     }
 
 
+backgroundColor =
+    rgba255 18 18 18 100
+
+
+cardBackgroundColor =
+    rgba255 255 255 255 0.1
+
+
+textColor =
+    rgba255 255 255 255 0.9
+
+
+textColorLight =
+    rgba255 255 255 255 0.5
+
+
 mainLayout : Model -> Html.Html msg
 mainLayout model =
-    layout [ padding 5 ] <| mainCol model
+    layout
+        [ padding 5
+        , Element.Background.color backgroundColor
+        ]
+    <|
+        row [ centerX ]
+            [ mainCol model
+            ]
 
 
 edges : { top : Int, bottom : Int, left : Int, right : Int }
@@ -226,6 +252,7 @@ header =
         [ paddingEach { edges | bottom = 20, top = 10 }
         , centerX
         , Font.size 30
+        , Font.color textColor
         ]
         [ text "saved links from #library" ]
 
@@ -239,62 +266,69 @@ mainCol model =
                     el [ centerX ] <| text "loading ..."
 
                 Success ->
-                    entryTable model.entries
+                    el [] <| cardsCol model.entries
 
                 Failure ->
                     el [] <| text "failed to load data from api :("
     in
     column
-        [ centerX
-        ]
+        [ Font.color textColor ]
         [ header
         , body
         ]
 
 
-styledHeader : String -> Element msg
-styledHeader headerText =
+cardUserInfo indexedEntry =
+    row [ Font.size 12, Font.color textColorLight ]
+        [ text "added by "
+        , el [] <| text indexedEntry.user
+        , text " at "
+        , el [] <| text <| timestampToUtcString indexedEntry.timestamp
+        ]
+
+
+cardUrl indexedEntry =
+    let
+        url =
+            indexedEntry.url
+
+        urlText =
+            if String.length url >= 80 then
+                String.slice 0 80 url ++ "..."
+
+            else
+                url
+    in
+    row []
+        [ newTabLink [] { url = url, label = text urlText }
+        ]
+
+
+card indexedEntry =
     el
-        [ Font.size 18
-        , Font.center
-        , Font.bold
-        , Border.widthEach { edges | bottom = 1 }
-        , paddingEach { edges | bottom = 5 }
+        [ Border.widthEach { edges | bottom = 1, right = 1, left = 1, top = 1 }
+        , Border.rounded 10
+        , width fill
+        , Element.Background.color cardBackgroundColor
         ]
     <|
-        text headerText
+        row []
+            [ column
+                [ paddingEach { edges | left = 5, right = 5 }
+                , height fill
+                , Border.widthEach { edges | right = 2 }
+                , Font.color textColorLight
+                ]
+                [ el [ centerY ] <| text <| String.fromInt indexedEntry.index ]
+            , column [ spacing 12, padding 5 ]
+                [ cardUrl indexedEntry
+                , cardUserInfo indexedEntry
+                ]
+            ]
 
 
-indexCell : String -> Element msg
-indexCell cellText =
-    el
-        [ Border.widthEach { edges | bottom = 1, left = 1 }
-        , padding 8
-        ]
-    <|
-        text cellText
-
-
-userCell : String -> Element msg
-userCell cellText =
-    el
-        [ Border.widthEach { edges | bottom = 1, left = 1 }
-        , padding 8
-        , Font.center
-        ]
-    <|
-        text cellText
-
-
-urlCell : String -> Element msg
-urlCell cellText =
-    el
-        [ Border.widthEach { edges | bottom = 1, right = 1, left = 1 }
-        , padding 8
-        , Font.center
-        ]
-    <|
-        newTabLink [] { url = cellText, label = text cellText }
+cardsCol entries =
+    column [ spacing 20 ] <| List.map card <| List.reverse <| indexedData entries
 
 
 type alias IndexedEntry =
@@ -316,28 +350,3 @@ indexedData entries =
         |> List.reverse
         |> List.indexedMap Tuple.pair
         |> List.map toIndexedEntry
-
-
-entryTable : List Entry -> Element msg
-entryTable entries =
-    table [ Font.size 14 ]
-        { data = List.reverse <| indexedData entries
-        , columns =
-            [ { header = styledHeader " "
-              , width = Element.px 25
-              , view = \e -> indexCell <| String.fromInt e.index
-              }
-            , { header = styledHeader "handle"
-              , width = fill
-              , view = \e -> userCell e.user
-              }
-            , { header = styledHeader "timestamp (utc)"
-              , width = fill
-              , view = \e -> userCell <| timestampToUtcString e.timestamp
-              }
-            , { header = styledHeader "url"
-              , width = fill
-              , view = \e -> urlCell e.url
-              }
-            ]
-        }
