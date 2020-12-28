@@ -23,12 +23,8 @@ jobs:
         cd assets/elm
         elm make src/Main.elm --output main.js
 
-    - name: Log into registry
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-
     - name: CDK Diff
-      uses: docker://docker.pkg.github.com/scottbrenner/aws-cdk-action/aws-cdk-action:latest
-      # uses: docker://epequeno/aws-cdk-action:latest
+      uses: scottbrenner/aws-cdk-action@master
       with:
         args: diff
       env:
