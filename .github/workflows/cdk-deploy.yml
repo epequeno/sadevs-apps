@@ -24,8 +24,7 @@ jobs:
         elm make src/Main.elm --output dst/main.js --optimize
 
     - name: CDK Deploy
-      uses: docker://docker.pkg.github.com/scottbrenner/aws-cdk-action/aws-cdk-action:latest
-      # uses: docker://epequeno/aws-cdk-action:latest
+      uses: scottbrenner/aws-cdk-action@master
       with:
         args: deploy --require-approval never '*'
       env:
