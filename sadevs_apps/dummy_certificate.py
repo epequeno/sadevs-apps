@@ -1,7 +1,6 @@
 """
-defines core resources which will be shared or needed for several other parts of the infrastructure. These resources
-(and associated stack) should not change very often. High-level resources like hosted zones and SSL certificates are
-defined here.
+when modifying the certificate from the core resources it is necessary to point resources that use the cert to another
+certificate. This is intended to be a temporary resource while updating the core resources cert.
 """
 # stdlib
 
@@ -16,14 +15,13 @@ from constructs import Construct
 # local
 
 
-class CoreResourcesStack(Stack):
+class DummyCertificateStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
         self._domain_name = "sadevs.app"
-        self._hosted_zone = route53.PublicHostedZone(
-            self, "HostedZone", zone_name=self._domain_name
+        self._hosted_zone = route53.HostedZone.from_hosted_zone_attributes(
+            self, "ProdCert", hosted_zone_id="Z2E93J3M5GN8BP", zone_name="sadevs.app"
         )
-
         self._certificate = certificate_manager.Certificate(
             self,
             "sadevs-apps-cert",

@@ -9,21 +9,24 @@ which is maintained outside of this project
 
 # 3rd party
 from aws_cdk import (
-    core,
+    Stack,
+    RemovalPolicy,
+    Duration,
     aws_ecs as ecs,
     aws_ec2 as ec2,
     aws_ecr as ecr,
     aws_secretsmanager as secretsmanager,
     aws_logs as logs,
 )
+from constructs import Construct
 
 # local
 
 
-class RustyEcsStack(core.Stack):
+class RustyEcsStack(Stack):
     def __init__(
         self,
-        scope: core.Construct,
+        scope: Construct,
         id: str,
         dynamodb_table,
         slack_token_secret_arn,
@@ -35,11 +38,11 @@ class RustyEcsStack(core.Stack):
             self,
             "RustyEcrRepo",
             repository_name="rusty",
-            removal_policy=core.RemovalPolicy.DESTROY,
+            removal_policy=RemovalPolicy.DESTROY,
             lifecycle_rules=[
                 ecr.LifecycleRule(
                     description="remove unused after 7 days",
-                    max_image_age=core.Duration.days(7),
+                    max_image_age=Duration.days(7),
                     tag_status=ecr.TagStatus.UNTAGGED,
                 )
             ],
@@ -50,11 +53,17 @@ class RustyEcsStack(core.Stack):
         )
 
         self._vpc = ec2.Vpc(
-            self, "RustyVpc", max_azs=1, subnet_configuration=[public_subnet],
+            self,
+            "RustyVpc",
+            max_azs=1,
+            subnet_configuration=[public_subnet],
         )
 
         self._cluster = ecs.Cluster(
-            self, "RustyEcsCluster", vpc=self._vpc, cluster_name="rusty",
+            self,
+            "RustyEcsCluster",
+            vpc=self._vpc,
+            cluster_name="rusty",
         )
 
         """
@@ -67,8 +76,8 @@ class RustyEcsStack(core.Stack):
         AWS SecretsManager and use the Secret.fromSecretArn 
         """
         slackbot_token_secret = ecs.Secret.from_secrets_manager(
-            secretsmanager.Secret.from_secret_arn(
-                self, "RustySlackBotTokenSecret", secret_arn=slack_token_secret_arn,
+            secretsmanager.Secret.from_secret_complete_arn(
+                self, "RustySlackBotTokenSecret", slack_token_secret_arn
             )
         )
 
@@ -76,7 +85,10 @@ class RustyEcsStack(core.Stack):
         self._task_def_secrets = {"SLACKBOT_TOKEN_SECRET": slackbot_token_secret}
 
         self._task_definition = ecs.FargateTaskDefinition(
-            self, "RustyEcsTaskDef", cpu=256, memory_limit_mib=512,
+            self,
+            "RustyEcsTaskDef",
+            cpu=256,
+            memory_limit_mib=512,
         )
 
         self._container_image = ecs.ContainerImage.from_ecr_repository(

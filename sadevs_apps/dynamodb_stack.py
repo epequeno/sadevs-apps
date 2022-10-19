@@ -1,11 +1,12 @@
 from aws_cdk import (
-    core,
+    Stack,
     aws_dynamodb as dynamodb,
 )
+from constructs import Construct
 
 
-class DynamoDBStack(core.Stack):
-    def __init__(self, scope: core.Construct, id: str, **kwargs) -> None:
+class DynamoDBStack(Stack):
+    def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         self._table = dynamodb.Table(

@@ -8,24 +8,27 @@ optionally produce "outputs" which can be used as inputs to other stacks.
 import os
 
 # 3rd party
-from aws_cdk import core
+from aws_cdk import App, Environment
 from sadevs_apps.core_resources_stack import CoreResourcesStack
 from sadevs_apps.apigw_stack import ApiGwStack
 from sadevs_apps.static_site_stack import CFrontStaticSiteStack
 from sadevs_apps.dynamodb_stack import DynamoDBStack
 from sadevs_apps.rusty_ecs_stack import RustyEcsStack
+from sadevs_apps.dummy_certificate import DummyCertificateStack
 
 # local
 
 
-stack_env = core.Environment(
-    account=os.environ["CDK_DEFAULT_ACCOUNT"], region="us-east-1",
+stack_env = Environment(
+    account=os.environ["CDK_DEFAULT_ACCOUNT"],
+    region="us-east-1",
 )
 
-app = core.App()
+app = App()
 
 core_resources = CoreResourcesStack(app, "core-resources", env=stack_env)
 dynamodb_stack = DynamoDBStack(app, "dynamodb", env=stack_env)
+# dummy_certificate = DummyCertificateStack(app, "dummy-certificate", env=stack_env)
 
 apigw_stack = ApiGwStack(
     app,
