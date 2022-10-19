@@ -5,20 +5,21 @@ defines the API gateway and associated lambdas
 
 # 3rd party
 from aws_cdk import (
-    core,
+    Stack,
     aws_apigateway as apigw,
     aws_lambda,
     aws_route53 as route53,
     aws_route53_targets as route53_targets,
 )
+from constructs import Construct
 
 # local
 
 
-class ApiGwStack(core.Stack):
+class ApiGwStack(Stack):
     def __init__(
         self,
-        scope: core.Construct,
+        scope: Construct,
         id: str,
         acm_certificate,
         hosted_zone,
@@ -31,8 +32,8 @@ class ApiGwStack(core.Stack):
         db_get_lambda = aws_lambda.Function(
             self,
             "dbGet",
-            runtime=aws_lambda.Runtime.PYTHON_3_8,
-            code=aws_lambda.Code.asset("assets/lambda/db_get"),
+            runtime=aws_lambda.Runtime.PYTHON_3_9,
+            code=aws_lambda.Code.from_asset("assets/lambda/db_get"),
             handler="db_get.handler",
         )
 
