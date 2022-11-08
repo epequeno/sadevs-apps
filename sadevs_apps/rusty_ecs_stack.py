@@ -113,6 +113,7 @@ class RustyEcsStack(Stack):
             cluster=self._cluster,
             vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
             assign_public_ip=True,
+            desired_count=0,
         )
 
         self._ecr_repository.grant_pull(self._task_definition.execution_role)
